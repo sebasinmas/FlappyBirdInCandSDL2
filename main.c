@@ -48,6 +48,8 @@ int main(int argc, char const *argv[])
         printf("Error creating renderer\n");
         return -1;
     }
+    SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+
 
     //Setting up sounds
     Mix_Chunk *crash=NULL;
@@ -100,7 +102,7 @@ int main(int argc, char const *argv[])
                 {
                     quit = 1;
                 }                
-                if(e.type == SDL_KEYDOWN)
+                if(e.type == SDL_KEYDOWN && e.key.repeat==0)
                 {
                     if(e.key.keysym.sym == SDLK_SPACE)
                     {
@@ -128,14 +130,14 @@ int main(int argc, char const *argv[])
                 {
                     quit = 1;
                 }
-                if(e.type == SDL_KEYDOWN)
+                if(e.type == SDL_KEYDOWN && e.key.repeat ==0)
                 {
                     if(e.key.keysym.sym == SDLK_SPACE)
                     {
                         if (pause == true){
                             pause = false;
                         }
-                        
+                                            
                         
 
                     }
@@ -150,6 +152,7 @@ int main(int argc, char const *argv[])
             }
             
             //Render
+            SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
             SDL_RenderClear(renderer);
             SDL_RenderCopy(renderer, gBackgroundTexture2, NULL, NULL);
             renderPlayer(renderer, &player);

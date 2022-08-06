@@ -54,15 +54,29 @@ void renderPause(SDL_Renderer *renderer,TTF_Font *gFont,bool pause){
     const int SCREEN_HEIGHT = 480;
     SDL_Color textColor = {255, 255, 255};
     SDL_Color textColor2 = {0, 0, 0};
-    
+
+
+    SDL_Surface *blackScreen=NULL;
+    blackScreen= SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0, 0, 0, 128);
+    SDL_Texture *blackScreenTexture = SDL_CreateTextureFromSurface(renderer, blackScreen);
+    SDL_SetTextureAlphaMod(blackScreenTexture, 128);
+    SDL_SetTextureBlendMode(blackScreenTexture, SDL_BLENDMODE_BLEND);
+    SDL_Rect blackScreenRect;
+    blackScreenRect.x = 0;
+    blackScreenRect.y = 0;
+    blackScreenRect.w = SCREEN_WIDTH;
+    blackScreenRect.h = SCREEN_HEIGHT;
+   
     SDL_Surface *gSurfaceMessage = TTF_RenderText_Solid(gFont, "Press Space to Start", textColor);
     if (SDL_GetTicks() % 1000 < 500) {
         gSurfaceMessage = TTF_RenderText_Solid(gFont, "Press Space to Start", textColor2);
     }
-    //Half transparent black background
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128);
- 
     
+
+
+
+
+
     SDL_Texture *gMessage = SDL_CreateTextureFromSurface(renderer, gSurfaceMessage);
     SDL_Rect Message_rect;
     Message_rect.x = SCREEN_WIDTH/2 - gSurfaceMessage->w/2;
@@ -70,8 +84,12 @@ void renderPause(SDL_Renderer *renderer,TTF_Font *gFont,bool pause){
     Message_rect.w = gSurfaceMessage->w;
     Message_rect.h = gSurfaceMessage->h;
     if (pause == true) {
+
+        SDL_RenderCopy(renderer, blackScreenTexture, NULL, &blackScreenRect);
         SDL_RenderCopy(renderer, gMessage, NULL, &Message_rect);
     }
-     SDL_FreeSurface(gSurfaceMessage);
+    SDL_DestroyTexture(blackScreenTexture);
+    SDL_FreeSurface(blackScreen);
+    SDL_FreeSurface(gSurfaceMessage);
     SDL_DestroyTexture(gMessage);
 }
