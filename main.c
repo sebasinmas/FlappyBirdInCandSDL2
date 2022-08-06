@@ -11,6 +11,7 @@
 #include"modules/initAndViews.h"
 #include"modules/physicsAndCollissions.h"
 #include"modules/player.h"
+#include"modules/pipes.h"
 // Flappy bird in SDL2 version
 
 
@@ -94,73 +95,96 @@ int main(int argc, char const *argv[])
     //game loop
     while(quit == 0)
     {   
-        if(view == menu)
-        {   
-            while(SDL_PollEvent(&e) != 0)
-            {
-                if(e.type == SDL_QUIT)
+            if(view == menu)
+            {   
+                while(SDL_PollEvent(&e) != 0)
                 {
-                    quit = 1;
-                }                
-                if(e.type == SDL_KEYDOWN && e.key.repeat==0)
-                {
-                    if(e.key.keysym.sym == SDLK_SPACE)
+                    if(e.type == SDL_QUIT)
                     {
-                        view = game;
+                        quit = 1;
+                    }                
+                    if(e.type == SDL_KEYDOWN && e.key.repeat==0)
+                    {
+                        if(e.key.keysym.sym == SDLK_SPACE)
+                        {
+                            view = game;
+                        }
+                        if (e.key.keysym.sym == SDLK_ESCAPE)
+          
+                        {
+                            quit = 1;
+                        }
+                        
+                        
                     }
-                    if (e.key.keysym.sym == SDLK_ESCAPE)
+                    
+                    
+                }           
+                
+                SDL_RenderClear(renderer);
+                SDL_RenderCopy(renderer, gBackgroundTexture, NULL, NULL);
+                renderMenuAuto(renderer,gFont);
+                SDL_RenderPresent(renderer);
+            }
+            if(view == game)
+            {   //Controls
+                GetJumpTime(&player);
+                while (SDL_PollEvent(&e) != 0)
+                {
+                    if(e.type == SDL_QUIT)
                     {
                         quit = 1;
                     }
-                    
-                    
-                }
-            }           
-            
-            SDL_RenderClear(renderer);
-            SDL_RenderCopy(renderer, gBackgroundTexture, NULL, NULL);
-            renderMenuAuto(renderer,gFont);
-            SDL_RenderPresent(renderer);
-        }
-        if(view == game)
-        {   //Controls
-            while (SDL_PollEvent(&e) != 0)
-            {
-                if(e.type == SDL_QUIT)
-                {
-                    quit = 1;
-                }
-                if(e.type == SDL_KEYDOWN && e.key.repeat ==0)
-                {
-                    if(e.key.keysym.sym == SDLK_SPACE)
+                    if(e.type == SDL_KEYDOWN && e.key.repeat== 0)
                     {
-                        if (pause == true){
-                            pause = false;
+                        if(e.key.keysym.sym == SDLK_SPACE)
+                        {
+                            if(pause == true){
+                                pause = false;
+                            }else{
+
+                                if (player.isJumping == false){                                
+                                    Jump(&player);
+                                }
+                                
+                                
+                            }
                         }
-                                            
-                        
+
+                        if (e.key.keysym.sym == SDLK_ESCAPE)
+                        {
+                            quit = 1;
+                        }    
+
 
                     }
-                    if (e.key.keysym.sym == SDLK_ESCAPE)
-                    {
-                        quit = 1;
-                    }
+                    
+                   
+                }
+                if (pause != true)
+                {
+                    Gravity(&player);
                 }
                 
                 
+                    
                 
+                
+                
+                
+                //Render
+                SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+                SDL_RenderClear(renderer);
+                SDL_RenderCopy(renderer, gBackgroundTexture2, NULL, NULL);
+                renderPlayer(renderer, &player);
+                renderPause(renderer,gFont,pause);
+                SDL_RenderPresent(renderer);
+    
             }
-            
-            //Render
-            SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-            SDL_RenderClear(renderer);
-            SDL_RenderCopy(renderer, gBackgroundTexture2, NULL, NULL);
-            renderPlayer(renderer, &player);
-            renderPause(renderer,gFont,pause);
-            SDL_RenderPresent(renderer);
-        }
-        SDL_Delay(1000/FPS);
+                SDL_Delay(1000/FPS);
     }
+    
+    
 
     //Free resources and close SDL
     SDL_DestroyTexture(gBackgroundTexture);
