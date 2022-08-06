@@ -49,4 +49,29 @@ void renderMenuAuto(SDL_Renderer *renderer,TTF_Font *gFont){
     SDL_DestroyTexture(gMessage);
 }
 
-
+void renderPause(SDL_Renderer *renderer,TTF_Font *gFont,bool pause){
+    const int SCREEN_WIDTH = 640;
+    const int SCREEN_HEIGHT = 480;
+    SDL_Color textColor = {255, 255, 255};
+    SDL_Color textColor2 = {0, 0, 0};
+    
+    SDL_Surface *gSurfaceMessage = TTF_RenderText_Solid(gFont, "Press Space to Start", textColor);
+    if (SDL_GetTicks() % 1000 < 500) {
+        gSurfaceMessage = TTF_RenderText_Solid(gFont, "Press Space to Start", textColor2);
+    }
+    //Half transparent black background
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128);
+ 
+    
+    SDL_Texture *gMessage = SDL_CreateTextureFromSurface(renderer, gSurfaceMessage);
+    SDL_Rect Message_rect;
+    Message_rect.x = SCREEN_WIDTH/2 - gSurfaceMessage->w/2;
+    Message_rect.y = ((SCREEN_HEIGHT/2)-30) - gSurfaceMessage->h/2;
+    Message_rect.w = gSurfaceMessage->w;
+    Message_rect.h = gSurfaceMessage->h;
+    if (pause == true) {
+        SDL_RenderCopy(renderer, gMessage, NULL, &Message_rect);
+    }
+     SDL_FreeSurface(gSurfaceMessage);
+    SDL_DestroyTexture(gMessage);
+}

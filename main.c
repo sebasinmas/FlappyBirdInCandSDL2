@@ -6,18 +6,14 @@
 #include <string.h>
 #include <time.h>
 #include <math.h>
+#include <stdbool.h>
 
 #include"modules/initAndViews.h"
-#include"modules/gravity.h"
-
+#include"modules/physicsAndCollissions.h"
+#include"modules/player.h"
 // Flappy bird in SDL2 version
-//Playerstruct
-typedef struct{
-    SDL_Rect *rect;
-    int posY;
-    int velY;
-    int accY;
-}Bird;
+
+
 
 
 int main(int argc, char const *argv[])
@@ -28,6 +24,7 @@ int main(int argc, char const *argv[])
     short quit=0;
     enum view {menu, game};
     unsigned short view=menu;
+    bool pause=true;
     //Initializating libraries
     if(init() == -1)
     {
@@ -55,6 +52,10 @@ int main(int argc, char const *argv[])
     //Setting up sounds
     Mix_Chunk *crash=NULL;
     crash = Mix_LoadWAV("assets/crash.mp3");
+    if (crash == NULL)
+    {
+        printf("Error loading crash.mp3\n");
+    } 
 
     //Setup the textures
     SDL_Surface *gBackgroundSurface = NULL;
@@ -62,6 +63,12 @@ int main(int argc, char const *argv[])
     gBackgroundSurface = IMG_Load("assets/menuBackground.jpg");
     gBackgroundTexture = SDL_CreateTextureFromSurface(renderer, gBackgroundSurface);
     SDL_FreeSurface(gBackgroundSurface);
+
+    SDL_Surface *gBackgroundSurface2 = NULL;
+    SDL_Texture *gBackgroundTexture2 = NULL;
+    gBackgroundSurface2 = IMG_Load("assets/background.png");
+    gBackgroundTexture2 = SDL_CreateTextureFromSurface(renderer, gBackgroundSurface2);
+    SDL_FreeSurface(gBackgroundSurface2);
 
     SDL_Surface *gBirdSurface = NULL;
     SDL_Texture *gBirdTexture = NULL;
@@ -71,14 +78,13 @@ int main(int argc, char const *argv[])
 
     SDL_Event e;
     SDL_Rect birdRect;
-    birdRect.x = 100;
-    birdRect.y = 200;
+    birdRect.x = 100; //My image has 28 dead pixels on the left
+    birdRect.y = 200; //My domain is [-52 , 372]
     birdRect.w = 150;
     birdRect.h = 150;
-   
-   Bird bird;
-   bird.rect=&birdRect;
 
+    Player player;
+    initPlayer(&player,gBirdTexture,&birdRect);
     //Setup the font
     TTF_Font *gFont = NULL;
     gFont = TTF_OpenFont("assets/font.ttf", 28);
@@ -126,8 +132,11 @@ int main(int argc, char const *argv[])
                 {
                     if(e.key.keysym.sym == SDLK_SPACE)
                     {
-                        if(bird.rect->y+50>0)
-                        bird.rect->y -= 30;
+                        if (pause == true){
+                            pause = false;
+                        }
+                        
+                        
 
                     }
                     if (e.key.keysym.sym == SDLK_ESCAPE)
@@ -135,25 +144,16 @@ int main(int argc, char const *argv[])
                         quit = 1;
                     }
                 }
-                if (e.type==SDL_KEYUP)
-                {
-                    if(e.key.keysym.sym == SDLK_SPACE)
-                    {
-                        
-                    }
-                }
+                
                 
                 
             }
-            //Movement
-            bird.rect->y += 1;
             
-
-
-
             //Render
             SDL_RenderClear(renderer);
-            SDL_RenderCopy(renderer, gBirdTexture, NULL, &birdRect);
+            SDL_RenderCopy(renderer, gBackgroundTexture2, NULL, NULL);
+            renderPlayer(renderer, &player);
+            renderPause(renderer,gFont,pause);
             SDL_RenderPresent(renderer);
         }
         SDL_Delay(1000/FPS);
